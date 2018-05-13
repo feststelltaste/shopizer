@@ -5,7 +5,9 @@ This document manifests the architecture of the Shopizer e-commerce System and s
 == Executed Groups
 
 [[default]]
-[role=group,includesGroups="preparation:Default"]
+[role=group,includesGroups="preparation:Default,subdomain:Default"]
 - <<preparation:Default>>
+- <<subdomain:Default>>
 
 include::preparation.adoc[]
+include::subdomain.adoc[]

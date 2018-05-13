@@ -1,0 +1,44 @@
+[[subdomain:Default]]
+[role=group,includesConcepts="subdomain:Subdomains,subdomain:TypeToSubdomain"]
+== Sub Domains
+
+These concepts define sub domain and further enrichments for the dataset.
+
+=== Concepts
+
+[[subdomain:Subdomains]]
+[source,cypher,role="concept",requiresConcepts="preparation:ShopizerFiles"]
+.Creates sub domain nodes based on the service layer.
+----
+MATCH
+    (service:Package:Shopizer)-[:CONTAINS]->(subDomain:Package:Shopizer)
+WHERE
+    service.fqn = "com.salesmanager.core.business.services"
+WITH
+    collect(DISTINCT subDomain.name) AS subDomains
+UNWIND
+    subDomains AS subDomain
+MERGE
+    (sD:SubDomain {name: subDomain})
+RETURN
+    sD
+----
+
+[[subdomain:TypeToSubdomain]]
+[source,cypher,role="concept",requiresConcepts="preparation:ShopizerFiles, subdomain:Subdomains"]
+.Assigns classes to the sub domains based on the package.
+----
+MATCH
+    (subDomain:SubDomain)
+MATCH
+    (package:Package:Shopizer)-[:CONTAINS*]->(t:Type:Shopizer)
+WHERE
+    package.name = subDomain.name
+MERGE
+    (subDomain)-[:CONTAINS]->(t)
+RETURN
+    subDomain.name AS  SubDomain, count(DISTINCT t) AS X_Classes
+ORDER BY
+    X_Classes DESC
+----
+
