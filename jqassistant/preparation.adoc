@@ -1,0 +1,35 @@
+[[preparation:Default]]
+[role=group,includesConcepts="preparation:ShopizerFiles"]
+== Preparation
+
+These concepts define basic labels and further enrichments for the dataset.
+
+=== Concepts
+
+[[preparation:ShopizerFiles]]
+[source,cypher,role="concept"]
+.Labels all Shopizer artifacts and contained files with "Shopizer".
+----
+MATCH
+    (a:Artifact)
+WHERE
+    a.fqn IN [
+        "com.shopizer:shopizer:pom:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-core:jar:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-core-model:jar:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-core-modules:jar:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-shop:war:2.2.0-SNAPSHOT"
+    ]
+SET
+    a:Shopizer
+WITH
+    a
+MATCH
+    (a)-[:CONTAINS*]->(c)
+SET
+    c:Shopizer
+RETURN
+    a.name AS Artifact, count(DISTINCT c) AS Content_Cnt
+ORDER BY
+    a.name
+----
