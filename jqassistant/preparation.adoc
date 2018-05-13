@@ -1,5 +1,5 @@
 [[preparation:Default]]
-[role=group,includesConcepts="preparation:ShopizerFiles"]
+[role=group,includesConcepts="preparation:ShopizerFiles,preparation:ShopizerLayers,preparation:ShopizerFilesToLayers"]
 == Preparation
 
 These concepts define basic labels and further enrichments for the dataset.
@@ -32,4 +32,37 @@ RETURN
     a.name AS Artifact, count(DISTINCT c) AS Content_Cnt
 ORDER BY
     a.name
+----
+
+[[preparation:ShopizerLayers]]
+[source,cypher,role="concept"]
+.Creates three layer nodes with individual names.
+----
+CREATE
+  (dataLayer:Layer {name:"DataLayer"}),
+  (domainLayer:Layer {name:"DomainLayer"}),
+  (presentationLayer:Layer {name:"PresentationLayer"})
+RETURN
+  dataLayer, domainLayer, presentationLayer
+----
+
+[[preparation:ShopizerFilesToLayers]]
+[source,cypher,role="concept",requiresConcepts="preparation:ShopizerLayers,preparation:ShopizerFiles"]
+.Labels all Shopizer artifacts and contained files with "Shopizer".
+----
+MATCH
+    (a:Artifact:Shopizer)-[:CONTAINS*]->(t)
+WITH DISTINCT t,
+    CASE a.name
+        WHEN "sm-shop" THEN "PresentationLayer"
+        WHEN "sm-core" THEN "DomainLayer"
+        WHEN "sm-core-modules" THEN "DomainLayer"
+        WHEN "sm-core-model" THEN "DataLayer"
+    END AS layer
+MATCH
+    (l:Layer {name:layer})
+MERGE
+    (l)-[:CONTAINS]->(t)
+RETURN
+    l.name AS Layer, count(DISTINCT t) AS Size
 ----
