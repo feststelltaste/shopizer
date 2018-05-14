@@ -1,5 +1,5 @@
 [[preparation:Default]]
-[role=group,includesConcepts="preparation:ShopizerFiles,preparation:ShopizerLayers,preparation:ShopizerFilesToLayers"]
+[role=group,includesConcepts="preparation:ShopizerFiles,preparation:ShopizerLayers,preparation:ShopizerFilesToLayers,preparation:ShopizerFilesToLayersPackage"]
 == Preparation
 
 These concepts define basic labels and further enrichments for the dataset.
@@ -18,7 +18,8 @@ WHERE
         "com.shopizer:sm-core:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-core-model:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-core-modules:jar:2.2.0-SNAPSHOT",
-        "com.shopizer:sm-shop:war:2.2.0-SNAPSHOT"
+        "com.shopizer:sm-shop:war:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-common:jar:2.2.0-SNAPSHOT"
     ]
 SET
     a:Shopizer
@@ -48,7 +49,7 @@ RETURN
 
 [[preparation:ShopizerFilesToLayers]]
 [source,cypher,role="concept",requiresConcepts="preparation:ShopizerLayers,preparation:ShopizerFiles"]
-.Labels all Shopizer artifacts and contained files with "Shopizer".
+.Assigns all files to a technical layer based on the containing artifact.
 ----
 MATCH
     (a:Artifact:Shopizer)-[:CONTAINS*]->(t)
@@ -58,6 +59,25 @@ WITH DISTINCT t,
         WHEN "sm-core" THEN "DomainLayer"
         WHEN "sm-core-modules" THEN "DomainLayer"
         WHEN "sm-core-model" THEN "DataLayer"
+    END AS layer
+MATCH
+    (l:Layer {name:layer})
+MERGE
+    (l)-[:CONTAINS]->(t)
+RETURN
+    l.name AS Layer, count(DISTINCT t) AS Size
+----
+
+[[preparation:ShopizerFilesToLayersPackage]]
+[source,cypher,role="concept",requiresConcepts="preparation:ShopizerLayers,preparation:ShopizerFiles"]
+.Assigns all files to a technical layer based on the containing package.
+----
+MATCH
+    (p:Package)-[:CONTAINS*]->(t)
+WITH DISTINCT t,
+    CASE p.fqn
+        WHEN "com.salesmanager.common.business" THEN "DomainLayer"
+        WHEN "com.salesmanager.common.model" THEN "DataLayer"
     END AS layer
 MATCH
     (l:Layer {name:layer})
