@@ -76,6 +76,7 @@ MATCH
     (p:Package)-[:CONTAINS*]->(t)
 WITH DISTINCT t,
     CASE p.fqn
+        WHEN "com.salesmanager.common.presentation" THEN "PresentationLayer"
         WHEN "com.salesmanager.common.business" THEN "DomainLayer"
         WHEN "com.salesmanager.common.model" THEN "DataLayer"
     END AS layer
