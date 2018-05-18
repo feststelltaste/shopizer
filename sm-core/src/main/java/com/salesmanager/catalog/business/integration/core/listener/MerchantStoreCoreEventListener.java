@@ -27,7 +27,7 @@ public class MerchantStoreCoreEventListener {
     public void handleMerchantStoreCreateEvent(CreateEvent<MerchantStoreDTO> event) {
         MerchantStoreDTO storeDTO = event.getDto();
         if (storeDTO != null) {
-            MerchantStoreInfo storeInfo = new MerchantStoreInfo(storeDTO.getId(), storeDTO.getCode());
+            MerchantStoreInfo storeInfo = new MerchantStoreInfo(storeDTO.getId(), storeDTO.getCode(), storeDTO.getCurrency(), storeDTO.getDefaultLanguage(), storeDTO.getCountryIsoCode(), storeDTO.isCurrencyFormatNational());
             merchantStoreInfoRepository.save(storeInfo);
         }
     }
@@ -46,7 +46,7 @@ public class MerchantStoreCoreEventListener {
     public void handleMerchantStoreUpdateEvent(UpdateEvent<MerchantStoreDTO> event) {
         MerchantStoreDTO storeDTO = event.getDto();
         if (storeDTO != null) {
-            MerchantStoreInfo storeInfo = new MerchantStoreInfo(storeDTO.getId(), storeDTO.getCode());
+            MerchantStoreInfo storeInfo = new MerchantStoreInfo(storeDTO.getId(), storeDTO.getCode(), storeDTO.getCurrency(), storeDTO.getDefaultLanguage(), storeDTO.getCountryIsoCode(), storeDTO.isCurrencyFormatNational());
             merchantStoreInfoRepository.save(storeInfo);
         }
     }
