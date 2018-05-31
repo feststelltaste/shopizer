@@ -1,7 +1,9 @@
 package com.salesmanager.core.integration;
 
+import com.salesmanager.core.integration.customer.CustomerCreateEvent;
 import com.salesmanager.core.integration.language.LanguageCreateEvent;
 import com.salesmanager.core.integration.merchant.MerchantStoreCreateEvent;
+import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import org.hibernate.event.spi.PostInsertEvent;
@@ -25,6 +27,9 @@ public class CreateEventListener implements PostInsertEventListener, Application
         } else if (event.getEntity() instanceof Language) {
             Language language = ((Language) event.getEntity());
             applicationEventPublisher.publishEvent(new LanguageCreateEvent(language.toDTO()));
+        } else if (event.getEntity() instanceof Customer) {
+            Customer customer = ((Customer) event.getEntity());
+            applicationEventPublisher.publishEvent(new CustomerCreateEvent(customer.toDTO()));
         }
     }
 
