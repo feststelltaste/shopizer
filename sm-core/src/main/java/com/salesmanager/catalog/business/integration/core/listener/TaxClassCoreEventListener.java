@@ -1,6 +1,8 @@
 package com.salesmanager.catalog.business.integration.core.listener;
 
 import com.salesmanager.catalog.business.integration.core.repository.TaxClassInfoRepository;
+import com.salesmanager.catalog.business.integration.core.service.MerchantStoreInfoService;
+import com.salesmanager.catalog.model.integration.core.MerchantStoreInfo;
 import com.salesmanager.catalog.model.integration.core.TaxClassInfo;
 import com.salesmanager.common.model.integration.CreateEvent;
 import com.salesmanager.common.model.integration.DeleteEvent;
@@ -17,9 +19,12 @@ public class TaxClassCoreEventListener {
 
     private TaxClassInfoRepository taxClassInfoRepository;
 
+    private MerchantStoreInfoService merchantStoreInfoService;
+
     @Autowired
-    public TaxClassCoreEventListener(TaxClassInfoRepository taxClassInfoRepository) {
+    public TaxClassCoreEventListener(TaxClassInfoRepository taxClassInfoRepository, MerchantStoreInfoService merchantStoreInfoService) {
         this.taxClassInfoRepository = taxClassInfoRepository;
+        this.merchantStoreInfoService = merchantStoreInfoService;
     }
 
     @TransactionalEventListener
@@ -27,9 +32,11 @@ public class TaxClassCoreEventListener {
     public void handleTaxClassCreateEvent(CreateEvent<TaxClassDTO> event) {
         TaxClassDTO taxClassDTO = event.getDto();
         if (taxClassDTO != null) {
+            MerchantStoreInfo merchantStoreInfo = this.merchantStoreInfoService.findbyCode(taxClassDTO.getMerchantStoreCode());
             TaxClassInfo taxClass = new TaxClassInfo(
                     taxClassDTO.getId(),
-                    taxClassDTO.getCode()
+                    taxClassDTO.getCode(),
+                    merchantStoreInfo
             );
             this.taxClassInfoRepository.save(taxClass);
         }
@@ -49,9 +56,11 @@ public class TaxClassCoreEventListener {
     public void handletaxClassUpdateEvent(UpdateEvent<TaxClassDTO> event) {
         TaxClassDTO taxClassDTO = event.getDto();
         if (taxClassDTO != null) {
+            MerchantStoreInfo merchantStoreInfo = this.merchantStoreInfoService.findbyCode(taxClassDTO.getMerchantStoreCode());
             TaxClassInfo taxClass = new TaxClassInfo(
                     taxClassDTO.getId(),
-                    taxClassDTO.getCode()
+                    taxClassDTO.getCode(),
+                    merchantStoreInfo
             );
             this.taxClassInfoRepository.save(taxClass);
         }
