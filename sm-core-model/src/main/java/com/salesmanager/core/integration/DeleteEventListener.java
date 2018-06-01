@@ -3,9 +3,11 @@ package com.salesmanager.core.integration;
 import com.salesmanager.core.integration.customer.CustomerDeleteEvent;
 import com.salesmanager.core.integration.language.LanguageDeleteEvent;
 import com.salesmanager.core.integration.merchant.MerchantStoreDeleteEvent;
+import com.salesmanager.core.integration.tax.TaxClassDeleteEvent;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.tax.taxclass.TaxClass;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostDeleteEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -30,6 +32,9 @@ public class DeleteEventListener implements PostDeleteEventListener, Application
         } else if (event.getEntity() instanceof Customer) {
             Customer customer = ((Customer) event.getEntity());
             applicationEventPublisher.publishEvent(new CustomerDeleteEvent(customer.toDTO()));
+        } else if (event.getEntity() instanceof TaxClass) {
+            TaxClass taxClass = ((TaxClass) event.getEntity());
+            applicationEventPublisher.publishEvent(new TaxClassDeleteEvent(taxClass.toDTO()));
         }
     }
 

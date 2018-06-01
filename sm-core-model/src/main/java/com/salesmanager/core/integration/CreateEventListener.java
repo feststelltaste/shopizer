@@ -3,9 +3,11 @@ package com.salesmanager.core.integration;
 import com.salesmanager.core.integration.customer.CustomerCreateEvent;
 import com.salesmanager.core.integration.language.LanguageCreateEvent;
 import com.salesmanager.core.integration.merchant.MerchantStoreCreateEvent;
+import com.salesmanager.core.integration.tax.TaxClassCreateEvent;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.tax.taxclass.TaxClass;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -30,6 +32,9 @@ public class CreateEventListener implements PostInsertEventListener, Application
         } else if (event.getEntity() instanceof Customer) {
             Customer customer = ((Customer) event.getEntity());
             applicationEventPublisher.publishEvent(new CustomerCreateEvent(customer.toDTO()));
+        } else if (event.getEntity() instanceof TaxClass) {
+            TaxClass taxClass = ((TaxClass) event.getEntity());
+            applicationEventPublisher.publishEvent(new TaxClassCreateEvent(taxClass.toDTO()));
         }
     }
 
