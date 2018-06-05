@@ -82,6 +82,7 @@ WITH DISTINCT t,
         WHEN "com.salesmanager.common.presentation" THEN "PresentationLayer"
         WHEN "com.salesmanager.common.business" THEN "DomainLayer"
         WHEN "com.salesmanager.common.model" THEN "DataLayer"
+        WHEN "com.salesmanager.catalog.model" THEN "DataLayer"
     END AS layer
 MATCH
     (l:Layer {name:layer})
