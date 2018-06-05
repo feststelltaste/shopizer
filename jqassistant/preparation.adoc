@@ -20,7 +20,8 @@ WHERE
         "com.shopizer:sm-core-modules:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-shop:war:2.2.0-SNAPSHOT",
         "com.shopizer:sm-common:jar:2.2.0-SNAPSHOT",
-        "com.shopizer:sm-core-model-api:jar:2.2.0-SNAPSHOT"
+        "com.shopizer:sm-core-model-api:jar:2.2.0-SNAPSHOT",
+        "com.shopizer:sm-catalog:jar:2.2.0-SNAPSHOT"
     ]
 SET
     a:Shopizer
