@@ -80,6 +80,7 @@ MATCH
 WITH DISTINCT t,
     CASE p.fqn
         WHEN "com.salesmanager.common.presentation" THEN "PresentationLayer"
+        WHEN "com.salesmanager.catalog.presentation" THEN "PresentationLayer"
         WHEN "com.salesmanager.common.business" THEN "DomainLayer"
         WHEN "com.salesmanager.catalog.business" THEN "DomainLayer"
         WHEN "com.salesmanager.common.model" THEN "DataLayer"
