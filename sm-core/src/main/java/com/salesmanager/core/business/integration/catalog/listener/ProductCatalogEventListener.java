@@ -1,6 +1,7 @@
 package com.salesmanager.core.business.integration.catalog.listener;
 
 import com.salesmanager.catalog.api.dto.product.ProductDTO;
+import com.salesmanager.common.business.exception.ServiceException;
 import com.salesmanager.common.model.integration.CreateEvent;
 import com.salesmanager.common.model.integration.DeleteEvent;
 import com.salesmanager.common.model.integration.UpdateEvent;
@@ -24,15 +25,10 @@ public class ProductCatalogEventListener {
 
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleProductCreateEvent(CreateEvent<ProductDTO> event) {
+    public void handleProductCreateEvent(CreateEvent<ProductDTO> event) throws ServiceException {
         ProductDTO productDTO = event.getDto();
         if (productDTO != null) {
-            ProductInfo productInfo = new ProductInfo(
-                    productDTO.getId(),
-                    productDTO.getSku(),
-                    productDTO.getName(),
-                    productDTO.getManufacturerCode());
-            this.productInfoService.save(productInfo);
+            createOrUpdateProductInfo(productDTO);
         }
     }
 
@@ -47,16 +43,22 @@ public class ProductCatalogEventListener {
 
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleProductUpdateEvent(UpdateEvent<ProductDTO> event) {
+    public void handleProductUpdateEvent(UpdateEvent<ProductDTO> event) throws ServiceException {
         ProductDTO productDTO = event.getDto();
         if (productDTO != null) {
-            ProductInfo productInfo = new ProductInfo(
-                    productDTO.getId(),
-                    productDTO.getSku(),
-                    productDTO.getName(),
-                    productDTO.getManufacturerCode());
-            this.productInfoService.save(productInfo);
+            createOrUpdateProductInfo(productDTO);
         }
+    }
+
+    private void createOrUpdateProductInfo(ProductDTO productDTO) throws ServiceException {
+        ProductInfo productInfo = new ProductInfo(
+                productDTO.getId(),
+                productDTO.getSku(),
+                productDTO.getName(),
+                productDTO.getManufacturerCode());
+        ProductInfo.Dimension dimension = this.productInfoService.enrichDimensionsForProduct(productDTO.getId());
+        productInfo.setDimension(dimension);
+        this.productInfoService.save(productInfo);
     }
 
 }
