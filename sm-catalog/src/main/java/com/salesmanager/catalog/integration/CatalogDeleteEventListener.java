@@ -9,6 +9,7 @@ import com.salesmanager.catalog.model.product.Product;
 import com.salesmanager.catalog.model.product.attribute.ProductAttribute;
 import com.salesmanager.catalog.model.product.attribute.ProductOption;
 import com.salesmanager.catalog.model.product.attribute.ProductOptionValue;
+import com.salesmanager.catalog.model.product.description.ProductDescription;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostDeleteEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -40,7 +41,12 @@ public class CatalogDeleteEventListener implements PostDeleteEventListener, Appl
             Product product = ((ProductAttribute) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
             applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
-        } else if (event.getEntity() instanceof ProductOption) {
+        } else if (event.getEntity() instanceof ProductDescription) {
+            // we see the product as an aggregate root and thus publish the change of the product instead of the description directly
+            Product product = ((ProductDescription) event.getEntity()).getProduct();
+            product = productRepository.findOne(product.getId());
+            applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
+        }else if (event.getEntity() instanceof ProductOption) {
             ProductOption productOption = (ProductOption) event.getEntity();
             applicationEventPublisher.publishEvent(new ProductOptionDeleteEvent(productOption.toDTO()));
         } else if (event.getEntity() instanceof ProductOptionValue) {

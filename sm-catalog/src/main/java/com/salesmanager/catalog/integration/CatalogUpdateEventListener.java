@@ -8,6 +8,8 @@ import com.salesmanager.catalog.model.product.Product;
 import com.salesmanager.catalog.model.product.attribute.ProductAttribute;
 import com.salesmanager.catalog.model.product.attribute.ProductOption;
 import com.salesmanager.catalog.model.product.attribute.ProductOptionValue;
+import com.salesmanager.catalog.model.product.description.ProductDescription;
+import com.sun.javaws.jnl.PropertyDesc;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -37,6 +39,11 @@ public class CatalogUpdateEventListener implements PostUpdateEventListener, Appl
         } else if (event.getEntity() instanceof ProductAttribute) {
             // we see the product as an aggregate root and thus publish the change of the product instead of the attribute directly
             Product product = ((ProductAttribute) event.getEntity()).getProduct();
+            product = productRepository.findOne(product.getId());
+            applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
+        } else if (event.getEntity() instanceof ProductDescription) {
+            // we see the product as an aggregate root and thus publish the change of the product instead of the description directly
+            Product product = ((ProductDescription) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
             applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
         } else if (event.getEntity() instanceof ProductOption) {
