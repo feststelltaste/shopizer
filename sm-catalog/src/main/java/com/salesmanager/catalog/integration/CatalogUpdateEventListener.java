@@ -2,7 +2,6 @@ package com.salesmanager.catalog.integration;
 
 import com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO;
 import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
-import com.salesmanager.catalog.api.event.product.ProductOptionValueUpdateEvent;
 import com.salesmanager.catalog.business.repository.product.ProductRepository;
 import com.salesmanager.catalog.model.product.Product;
 import com.salesmanager.catalog.model.product.attribute.ProductAttribute;
@@ -13,8 +12,6 @@ import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
 import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +19,7 @@ import static com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO.*;
 
 
 @Component
-public class CatalogUpdateEventListener implements PostUpdateEventListener, ApplicationEventPublisherAware {
-
-    private ApplicationEventPublisher applicationEventPublisher;
+public class CatalogUpdateEventListener implements PostUpdateEventListener {
 
     private final ProductRepository productRepository;
 
@@ -56,17 +51,12 @@ public class CatalogUpdateEventListener implements PostUpdateEventListener, Appl
             kafkaTemplate.send("product_option", productOption.toDTO().setEventType(AbstractCatalogCrudDTO.EventType.UPDATE));
         } else if (event.getEntity() instanceof ProductOptionValue) {
             ProductOptionValue productOptionValue = (ProductOptionValue) event.getEntity();
-            applicationEventPublisher.publishEvent(new ProductOptionValueUpdateEvent(productOptionValue.toDTO()));
+            kafkaTemplate.send("product_option_value", productOptionValue.toDTO().setEventType(AbstractCatalogCrudDTO.EventType.UPDATE));
         }
     }
 
     @Override
     public boolean requiresPostCommitHanding(EntityPersister persister) {
         return false;
-    }
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 }
