@@ -4,16 +4,12 @@ import com.salesmanager.catalog.business.integration.core.repository.MerchantSto
 import com.salesmanager.catalog.business.integration.core.service.LanguageInfoService;
 import com.salesmanager.catalog.model.integration.core.LanguageInfo;
 import com.salesmanager.catalog.model.integration.core.MerchantStoreInfo;
-import com.salesmanager.common.business.exception.ServiceException;
-import com.salesmanager.common.model.integration.CreateEvent;
-import com.salesmanager.common.model.integration.DeleteEvent;
-import com.salesmanager.common.model.integration.UpdateEvent;
 import com.salesmanager.core.integration.merchant.MerchantStoreDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,52 +28,31 @@ public class MerchantStoreCoreEventListener {
         this.languageInfoService = languageInfoService;
     }
 
-    @TransactionalEventListener
+    @KafkaListener(topics = "merchant_store", containerFactory = "merchantStoreKafkaListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleMerchantStoreCreateEvent(CreateEvent<MerchantStoreDTO> event) {
-        MerchantStoreDTO storeDTO = event.getDto();
+    public void handleMerchantStoreCreateEvent(MerchantStoreDTO storeDTO) {
         if (storeDTO != null) {
-            MerchantStoreInfo storeInfo = new MerchantStoreInfo(
-                    storeDTO.getId(),
-                    storeDTO.getCode(),
-                    storeDTO.getCurrency(),
-                    storeDTO.getDefaultLanguage(),
-                    storeDTO.getCountryIsoCode(),
-                    storeDTO.isCurrencyFormatNational(),
-                    storeDTO.isUseCache(),
-                    storeDTO.getStoreTemplate(),
-                    storeDTO.getDomainName(),
-                    getLanguages(storeDTO));
-            merchantStoreInfoRepository.save(storeInfo);
-        }
-    }
+            switch (storeDTO.getEventType()) {
+                case CREATE:
+                case UPDATE:
+                    MerchantStoreInfo storeInfo = new MerchantStoreInfo(
+                            storeDTO.getId(),
+                            storeDTO.getCode(),
+                            storeDTO.getCurrency(),
+                            storeDTO.getDefaultLanguage(),
+                            storeDTO.getCountryIsoCode(),
+                            storeDTO.isCurrencyFormatNational(),
+                            storeDTO.isUseCache(),
+                            storeDTO.getStoreTemplate(),
+                            storeDTO.getDomainName(),
+                            getLanguages(storeDTO));
+                    merchantStoreInfoRepository.save(storeInfo);
+                    break;
+                case DELETE:
+                    merchantStoreInfoRepository.delete(storeDTO.getId());
+                    break;
+            }
 
-    @TransactionalEventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleMerchantStoreDeleteEvent(DeleteEvent<MerchantStoreDTO> event) {
-        MerchantStoreDTO storeDTO = event.getDto();
-        if (storeDTO != null) {
-            merchantStoreInfoRepository.delete(storeDTO.getId());
-        }
-    }
-
-    @TransactionalEventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleMerchantStoreUpdateEvent(UpdateEvent<MerchantStoreDTO> event) {
-        MerchantStoreDTO storeDTO = event.getDto();
-        if (storeDTO != null) {
-            MerchantStoreInfo storeInfo = new MerchantStoreInfo(
-                    storeDTO.getId(),
-                    storeDTO.getCode(),
-                    storeDTO.getCurrency(),
-                    storeDTO.getDefaultLanguage(),
-                    storeDTO.getCountryIsoCode(),
-                    storeDTO.isCurrencyFormatNational(),
-                    storeDTO.isUseCache(),
-                    storeDTO.getStoreTemplate(),
-                    storeDTO.getDomainName(),
-                    getLanguages(storeDTO));
-            merchantStoreInfoRepository.save(storeInfo);
         }
     }
 
