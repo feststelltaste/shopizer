@@ -1,9 +1,9 @@
 package com.salesmanager.catalog.integration;
 
-import com.salesmanager.catalog.api.event.product.ProductDeleteEvent;
+import com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO;
+import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
 import com.salesmanager.catalog.api.event.product.ProductOptionDeleteEvent;
 import com.salesmanager.catalog.api.event.product.ProductOptionValueDeleteEvent;
-import com.salesmanager.catalog.api.event.product.ProductUpdateEvent;
 import com.salesmanager.catalog.business.repository.product.ProductRepository;
 import com.salesmanager.catalog.model.product.Product;
 import com.salesmanager.catalog.model.product.attribute.ProductAttribute;
@@ -16,7 +16,10 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import static com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO.*;
 
 
 @Component
@@ -26,26 +29,29 @@ public class CatalogDeleteEventListener implements PostDeleteEventListener, Appl
 
     private final ProductRepository productRepository;
 
+    private final KafkaTemplate<String, AbstractCatalogDTO> kafkaTemplate;
+
     @Autowired
-    public CatalogDeleteEventListener(ProductRepository productRepository) {
+    public CatalogDeleteEventListener(ProductRepository productRepository, KafkaTemplate<String, AbstractCatalogDTO> kafkaTemplate) {
         this.productRepository = productRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
     public void onPostDelete(PostDeleteEvent event) {
         if (event.getEntity() instanceof Product) {
             Product product = (Product) event.getEntity();
-            applicationEventPublisher.publishEvent(new ProductDeleteEvent(product.toDTO()));
+            kafkaTemplate.send("product", product.toDTO().setEventType(EventType.DELETE));
         } else if (event.getEntity() instanceof ProductAttribute) {
             // we see the product as an aggregate root and thus publish the change of the product instead of the attribute directly
             Product product = ((ProductAttribute) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
-            applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
+            kafkaTemplate.send("product", product.toDTO().setEventType(AbstractCatalogCrudDTO.EventType.UPDATE));
         } else if (event.getEntity() instanceof ProductDescription) {
             // we see the product as an aggregate root and thus publish the change of the product instead of the description directly
             Product product = ((ProductDescription) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
-            applicationEventPublisher.publishEvent(new ProductUpdateEvent(product.toDTO()));
+            kafkaTemplate.send("product", product.toDTO().setEventType(AbstractCatalogCrudDTO.EventType.UPDATE));
         }else if (event.getEntity() instanceof ProductOption) {
             ProductOption productOption = (ProductOption) event.getEntity();
             applicationEventPublisher.publishEvent(new ProductOptionDeleteEvent(productOption.toDTO()));
