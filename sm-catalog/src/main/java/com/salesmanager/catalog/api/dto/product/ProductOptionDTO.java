@@ -1,6 +1,6 @@
 package com.salesmanager.catalog.api.dto.product;
 
-import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
+import com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ProductOptionDTO extends AbstractCatalogDTO {
+public class ProductOptionDTO extends AbstractCatalogCrudDTO {
 
     private Long id;
 
