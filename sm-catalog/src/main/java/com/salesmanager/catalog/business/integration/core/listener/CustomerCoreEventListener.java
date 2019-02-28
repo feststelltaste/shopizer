@@ -1,8 +1,8 @@
 package com.salesmanager.catalog.business.integration.core.listener;
 
+import com.salesmanager.catalog.business.integration.core.adapter.MerchantStoreInfoAdapter;
 import com.salesmanager.catalog.business.integration.core.repository.CustomerInfoRepository;
 import com.salesmanager.catalog.business.integration.core.service.LanguageInfoService;
-import com.salesmanager.catalog.business.integration.core.service.MerchantStoreInfoService;
 import com.salesmanager.catalog.model.integration.core.CustomerInfo;
 import com.salesmanager.catalog.model.integration.core.LanguageInfo;
 import com.salesmanager.catalog.model.integration.core.MerchantStoreInfo;
@@ -16,17 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class CustomerCoreEventListener {
 
-
-    private CustomerInfoRepository customerInfoRepository;
-
-    private MerchantStoreInfoService merchantStoreInfoService;
-
-    private LanguageInfoService languageInfoService;
+    private final CustomerInfoRepository customerInfoRepository;
+    private final MerchantStoreInfoAdapter merchantStoreInfoAdapter;
+    private final LanguageInfoService languageInfoService;
 
     @Autowired
-    public CustomerCoreEventListener(CustomerInfoRepository customerInfoRepository, MerchantStoreInfoService merchantStoreInfoService, LanguageInfoService languageInfoService) {
+    public CustomerCoreEventListener(CustomerInfoRepository customerInfoRepository, MerchantStoreInfoAdapter merchantStoreInfoAdapter, LanguageInfoService languageInfoService) {
         this.customerInfoRepository = customerInfoRepository;
-        this.merchantStoreInfoService = merchantStoreInfoService;
+        this.merchantStoreInfoAdapter = merchantStoreInfoAdapter;
         this.languageInfoService = languageInfoService;
     }
 
@@ -37,7 +34,7 @@ public class CustomerCoreEventListener {
             switch (customerDTO.getEventType()) {
                 case CREATE:
                 case UPDATE:
-                    MerchantStoreInfo merchantStoreInfo = this.merchantStoreInfoService.findbyCode(customerDTO.getMerchantStoreCode());
+                    MerchantStoreInfo merchantStoreInfo = this.merchantStoreInfoAdapter.findOrRequest(customerDTO.getMerchantStoreCode());
                     LanguageInfo languageInfo = this.languageInfoService.findbyCode(customerDTO.getDefaultLanguageCode());
                     CustomerInfo customer = new CustomerInfo(
                             customerDTO.getId(),
