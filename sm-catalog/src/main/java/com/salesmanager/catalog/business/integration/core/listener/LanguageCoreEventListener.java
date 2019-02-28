@@ -1,5 +1,6 @@
 package com.salesmanager.catalog.business.integration.core.listener;
 
+import com.salesmanager.catalog.business.integration.core.adapter.LanguageInfoAdapter;
 import com.salesmanager.catalog.business.integration.core.repository.LanguageInfoRepository;
 import com.salesmanager.catalog.model.integration.core.LanguageInfo;
 import com.salesmanager.core.integration.language.LanguageDTO;
@@ -13,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class LanguageCoreEventListener {
 
     private LanguageInfoRepository languageInfoRepository;
+    private final LanguageInfoAdapter languageInfoAdapter;
 
     @Autowired
-    public LanguageCoreEventListener(LanguageInfoRepository languageInfoRepository) {
+    public LanguageCoreEventListener(LanguageInfoRepository languageInfoRepository, LanguageInfoAdapter languageInfoAdapter) {
         this.languageInfoRepository = languageInfoRepository;
+        this.languageInfoAdapter = languageInfoAdapter;
     }
 
     @KafkaListener(topics = "language", containerFactory = "languageKafkaListenerContainerFactory")
@@ -26,11 +29,7 @@ public class LanguageCoreEventListener {
             switch (languageDTO.getEventType()) {
                 case CREATE:
                 case UPDATE:
-                    LanguageInfo language = new LanguageInfo(
-                            languageDTO.getId(),
-                            languageDTO.getCode()
-                    );
-                    this.languageInfoRepository.save(language);
+                    this.languageInfoAdapter.createOrUpdateLanguageInfo(languageDTO);
                     break;
                 case DELETE:
                     this.languageInfoRepository.delete(languageDTO.getId());
