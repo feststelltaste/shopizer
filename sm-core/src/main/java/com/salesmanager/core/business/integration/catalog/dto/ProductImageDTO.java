@@ -5,12 +5,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@Setter
 @Getter
-public class AvailabilityInformationDTO extends AbstractCatalogDTO {
+@Setter
+public class ProductImageDTO {
 
-    private boolean available;
-    private boolean shippable;
-    private boolean virtual;
+    private Long id;
+    private String imageName;
+    private boolean defaultImage;
+    private String imageUrl;
 
 }

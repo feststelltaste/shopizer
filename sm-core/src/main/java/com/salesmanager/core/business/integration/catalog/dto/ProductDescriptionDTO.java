@@ -7,7 +7,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ProductDescriptionDTO {
+public class ProductDescriptionDTO extends AbstractCatalogDTO {
 
     private Long id;
     private String name;
