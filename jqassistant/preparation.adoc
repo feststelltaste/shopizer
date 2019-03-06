@@ -17,7 +17,6 @@ WHERE
         "com.shopizer:shopizer:pom:2.2.0-SNAPSHOT",
         "com.shopizer:sm-core:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-core-model:jar:2.2.0-SNAPSHOT",
-        "com.shopizer:sm-core-model-api:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-core-modules:jar:2.2.0-SNAPSHOT",
         "com.shopizer:sm-shop:war:2.2.0-SNAPSHOT",
         "com.shopizer:sm-common:jar:2.2.0-SNAPSHOT",
@@ -61,7 +60,6 @@ WITH DISTINCT t,
         WHEN "sm-core" THEN "DomainLayer"
         WHEN "sm-core-modules" THEN "DomainLayer"
         WHEN "sm-core-model" THEN "DataLayer"
-        WHEN "sm-core-model-api" THEN "DataLayer"
     END AS layer
 MATCH
     (l:Layer {name:layer})
