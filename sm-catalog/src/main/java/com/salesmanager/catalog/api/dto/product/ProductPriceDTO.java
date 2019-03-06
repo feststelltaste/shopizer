@@ -1,5 +1,6 @@
 package com.salesmanager.catalog.api.dto.product;
 
+import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import java.util.Date;
 
 @AllArgsConstructor
 @Getter
-public class ProductPriceDTO {
+public class ProductPriceDTO implements AbstractCatalogDTO {
 
     private String code;
     private String productPriceType;

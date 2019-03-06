@@ -1,5 +1,6 @@
 package com.salesmanager.catalog.api.dto.product;
 
+import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Getter
-public class FinalPriceDTO {
+public class FinalPriceDTO implements AbstractCatalogDTO {
 
     private Boolean discounted;
     private Double finalPrice;

@@ -20,22 +20,22 @@ public class UpdateEventListener implements PostUpdateEventListener {
 
     @Autowired
     @Qualifier("coreKafkaTemplate")
-    private KafkaTemplate<String, AbstractCoreDTO> kafkaTemplate;
+    private KafkaTemplate<String, AbstractCoreCrudDTO> kafkaTemplate;
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
         if (event.getEntity() instanceof MerchantStore) {
             MerchantStore store = ((MerchantStore) event.getEntity());
-            kafkaTemplate.send("merchantStore", store.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("merchantStore", (AbstractCoreCrudDTO) store.toDTO().setEventType(EventType.UPDATE));
         } else if (event.getEntity() instanceof Language) {
             Language language = ((Language) event.getEntity());
-            kafkaTemplate.send("language", language.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("language", (AbstractCoreCrudDTO) language.toDTO().setEventType(EventType.UPDATE));
         } else if (event.getEntity() instanceof Customer) {
             Customer customer = ((Customer) event.getEntity());
-            kafkaTemplate.send("customer", customer.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("customer", (AbstractCoreCrudDTO) customer.toDTO().setEventType(EventType.UPDATE));
         } else if (event.getEntity() instanceof TaxClass) {
             TaxClass taxClass = ((TaxClass) event.getEntity());
-            kafkaTemplate.send("taxCkass", taxClass.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("taxCkass", (AbstractCoreCrudDTO) taxClass.toDTO().setEventType(EventType.UPDATE));
         }
     }
 

@@ -1,6 +1,6 @@
 package com.salesmanager.catalog.integration;
 
-import com.salesmanager.catalog.api.dto.AbstractCatalogDTO;
+import com.salesmanager.catalog.api.dto.AbstractCatalogCrudDTO;
 import com.salesmanager.catalog.business.repository.product.ProductRepository;
 import com.salesmanager.catalog.model.product.Product;
 import com.salesmanager.catalog.model.product.attribute.ProductAttribute;
@@ -22,10 +22,10 @@ public class CatalogCreateEventListener implements PostInsertEventListener {
 
     private final ProductRepository productRepository;
 
-    private final KafkaTemplate<String, AbstractCatalogDTO> kafkaTemplate;
+    private final KafkaTemplate<String, AbstractCatalogCrudDTO> kafkaTemplate;
 
     @Autowired
-    public CatalogCreateEventListener(ProductRepository productRepository, KafkaTemplate<String, AbstractCatalogDTO> kafkaTemplate) {
+    public CatalogCreateEventListener(ProductRepository productRepository, KafkaTemplate<String, AbstractCatalogCrudDTO> kafkaTemplate) {
         this.productRepository = productRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -34,23 +34,23 @@ public class CatalogCreateEventListener implements PostInsertEventListener {
     public void onPostInsert(PostInsertEvent event) {
         if (event.getEntity() instanceof Product) {
             Product product = (Product) event.getEntity();
-            kafkaTemplate.send("product", product.toDTO().setEventType(EventType.CREATE));
+            kafkaTemplate.send("product", (AbstractCatalogCrudDTO) product.toDTO().setEventType(EventType.CREATE));
         } else if (event.getEntity() instanceof ProductAttribute) {
             // we see the product as an aggregate root and thus publish the change of the product instead of the attribute directly
             Product product = ((ProductAttribute) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
-            kafkaTemplate.send("product", product.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("product", (AbstractCatalogCrudDTO) product.toDTO().setEventType(EventType.UPDATE));
         } else if (event.getEntity() instanceof ProductDescription) {
             // we see the product as an aggregate root and thus publish the change of the product instead of the description directly
             Product product = ((ProductDescription) event.getEntity()).getProduct();
             product = productRepository.findOne(product.getId());
-            kafkaTemplate.send("product", product.toDTO().setEventType(EventType.UPDATE));
+            kafkaTemplate.send("product", (AbstractCatalogCrudDTO) product.toDTO().setEventType(EventType.UPDATE));
         } else if (event.getEntity() instanceof ProductOption) {
             ProductOption productOption = (ProductOption) event.getEntity();
-            kafkaTemplate.send("product_option", productOption.toDTO().setEventType(EventType.CREATE));
+            kafkaTemplate.send("product_option", (AbstractCatalogCrudDTO) productOption.toDTO().setEventType(EventType.CREATE));
         } else if (event.getEntity() instanceof ProductOptionValue) {
             ProductOptionValue productOptionValue = (ProductOptionValue) event.getEntity();
-            kafkaTemplate.send("product_option_value", productOptionValue.toDTO().setEventType(EventType.CREATE));
+            kafkaTemplate.send("product_option_value", (AbstractCatalogCrudDTO) productOptionValue.toDTO().setEventType(EventType.CREATE));
         }
     }
 

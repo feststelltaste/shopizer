@@ -1,4 +1,6 @@
 package com.salesmanager.core.business.integration.catalog.dto;
 
-public class AbstractCatalogDTO {
+import com.salesmanager.common.model.integration.AbstractDTO;
+
+public interface AbstractCatalogDTO extends AbstractDTO {
 }
