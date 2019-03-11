@@ -40,6 +40,7 @@
 		<mysql-jdbc-version>6.0.5</mysql-jdbc-version>
 		<simple-json-version>1.1.1</simple-json-version>
 		<jqassistant.version>1.6.0</jqassistant.version>
+		<hazelcast.version>3.11.2</hazelcast.version>
     </properties>
 
     <dependencies>
