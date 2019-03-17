@@ -1,13 +1,17 @@
+:toc: left
 = Shopizer e-commerce System Rules
 
-This document manifests the architecture of the Shopizer e-commerce System and specifies rules to keep the architecture on track.
+This document manifests the architecture of the Shopizer e-commerce System and specifies rules for architecture and design.
 
-== Executed Groups
+== Summary
+
+include::jQA:Summary[]
 
 [[default]]
-[role=group,includesGroups="preparation:Default,subdomain:Default"]
-- <<preparation:Default>>
-- <<subdomain:Default>>
+[role=group,includesGroups="dto:Default,preparation:Default,subdomain:Default"]
+== Rules
 
-include::preparation.adoc[]
-include::subdomain.adoc[]
+This section describes the architecture and design rules.
+
+include::dto.adoc[]
+

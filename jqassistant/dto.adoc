@@ -1,0 +1,24 @@
+[[dto:Default]]
+[role=group,includesConcepts="dto:*"]
+=== Data Transfer Object
+
+This section describes the concept of Data Transfer Objects (DTO).
+A DTO is a POJO containing fields and accessor methods and used for exchanging information.
+The rationale is to avoid direct coupling between implementations of independent building blocks (e.g. bounded contexts).
+
+[[dto:DTO]]
+[source,cypher,role=concept]
+.Every non-abstract class having a name suffix "DTO" is treated as a Data Transfer Object (`DTO`).
+----
+MATCH
+  (a:Artifact)-[:CONTAINS]->(dto:Type)
+WHERE
+  not exists(dto.abstract) and dto.fqn ends with "DTO"
+SET
+  dto:DTO
+RETURN
+  a.name as Artifact, collect(dto) as DTOs
+ORDER BY
+  Artifact
+----
+
