@@ -8,10 +8,11 @@ This document manifests the architecture of the Shopizer e-commerce System and s
 include::jQA:Summary[]
 
 [[default]]
-[role=group,includesGroups="dto:Default,preparation:Default,subdomain:Default"]
+[role=group,includesGroups="dto:Default,bounded-context:Default,preparation:Default,subdomain:Default"]
 == Rules
 
 This section describes the architecture and design rules.
 
 include::dto.adoc[]
+include::bounded-context.adoc[]
 
