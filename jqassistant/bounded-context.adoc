@@ -135,6 +135,10 @@ MATCH
   (t1)-[:DEPENDS_ON]->(t2)
 WHERE
   bc1.boundedContext <> bc2.boundedContext
+  and not t2.fqn in [
+    "com.salesmanager.catalog.presentation.CatalogApplicationConfiguration",
+    "com.salesmanager.catalog.init.CatalogInitializer"
+  ]
   and not (
     t2:Interface or t2:DTO
   )
