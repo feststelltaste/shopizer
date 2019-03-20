@@ -25,118 +25,19 @@ RETURN
   bc.boundedContext as BoundedContext, collect(bc.name) as Artifacts
 ----
 
-There may be well-defined dependencies between different bounded contexts.
-The goal is to have a cycle-free dependency graph that allows for:
-
-- determining the impact of changes between bounded contexts
-- defined lifecycle dependencies of bounded contexts at runtime (e.g. to control startup-/shutdown order)
-
-[[bounded-context:DefinedDependency]]
-[source,cypher,role=concept,requiresConcepts="bounded-context:BoundedContext",reportType="plantuml-component-diagram"]
-.Definition of allowed dependencies between different bounded contexts. They are mapped to Maven artifacts that represent public interfaces of each bounded context.
-----
-MATCH
-  (shop:BoundedContext:Artifact{name:"sm-shop"}),
-  (catalog:BoundedContext:Artifact{name:"sm-catalog"})
-MERGE
-  (shop)-[d2:DEFINES_BC_DEPENDENCY]->(catalog)
-RETURN
-  *
-----
-
-Dependencies between bounded contexts are introduced by creating references between Java types, e.g. by
-
-- injecting services
-- inheritance
-- used annotations
-- type parameters
-- ...
-
-A higher number of references causes higher `Coupling` between bounded contexts.
-The aim should be to keep the numbers as low as possible.
-
-[[bounded-context:Dependency]]
-[source,cypher,role=concept,requiresConcepts="bounded-context:BoundedContext"]
-.A dependency between two bounded contexts is caused by dependencies between Java types.
-----
-MATCH
-  (bc1:BoundedContext:Artifact)-[:CONTAINS]->(t1:Type),
-  (bc2:BoundedContext:Artifact)-[:CONTAINS]->(t2:Type),
-  (t1)-[dependsOn:DEPENDS_ON]->(t2)
-WHERE
-  bc1.boundedContext <> bc2.boundedContext
-WITH
-  bc1, bc2, count(dependsOn) as coupling, sum(dependsOn.weight) as totalCoupling
-MERGE
-  (bc1)-[dependsOnBC:DEPENDS_ON_BC]->(bc2)
-RETURN
-  bc1.boundedContext as BoundedContext, bc2.boundedContext as Dependency, coupling as Coupling, totalCoupling as TotalCoupling
-----
-
-During development dependencies between bounded contexts may be introduced that do not match the defined dependencies above.
-This situation is verified during build time.
-A detected violation must be resolved by either
-
-- removing the newly introduced dependency
-- or explicitly defining the dependency if applicable
+Bounded Contexts are completely independent of each other, i.e. they do not share common Java types.
 
 [[bounded-context:UndefinedDependency]]
-[source,cypher,role=constraint,requiresConcepts="bounded-context:Dependency,bounded-context:DefinedDependency"]
-.A bounded context must only have dependencies to other bounded contexts that are defined.
+[source,cypher,role=constraint]
+.A bounded context must not have dependencies to other bounded contexts.
 ----
 MATCH
-  (bc1:BoundedContext:Artifact)-[:DEPENDS_ON_BC]->(bc2:BoundedContext:Artifact)
-WHERE
-  not (bc1)-[:DEFINES_BC_DEPENDENCY]->(bc2)
-WITH
-  bc1, bc2
-MATCH
-  (bc1)-[:CONTAINS]->(t1:Type),
-  (bc2)-[:CONTAINS]->(t2:Type),
+  (bc1:BoundedContext:Artifact)-[:CONTAINS]->(t1:Type),
+  (bc2:BoundedContext:Artifact)-[:CONTAINS]->(t2:Type),
   (t1)-[dependsOn:DEPENDS_ON]->(t2)
+WHERE
+  bc1.boundedContext <> bc2.boundedContext
 RETURN
   bc1.boundedContext as BoundedContext, t1 as Type, bc2.boundedContext as Dependency, t2 as TypeDependency
-----
-
-The coupling between bounded contexts must be kept at a lowest possible minimum that guarantees the expected functionality and quality of services (e.g. performance).
-
-[[bounded-context:ExportedType]]
-[source,cypher,role=concept,requiresConcepts="bounded-context:BoundedContext"]
-.A type is exported from a bounded context if it is imported (i.e. used) by another bounded context.
-----
-MATCH
-  (bc1:BoundedContext:Artifact)-[:CONTAINS]->(t1:Type),
-  (bc2:BoundedContext:Artifact)-[:CONTAINS]->(t2:Type),
-  (t1)-[:DEPENDS_ON]->(t2)
-WHERE
-  bc1.boundedContext <> bc2.boundedContext
-RETURN
-  bc2.boundedContext as Exporter, t2.fqn as ExportedType, bc1.boundedContext as Importer, count(t1) as ImportingTypes
-ORDER BY
-  Exporter, ExportedType, Importer, ImportingTypes
-----
-
-For maintainability reasons it is important to have clear set of defined types that may be exchanged by different bounded contexts.
-This ensures encapsulation of implementation details and enables independent evolution.
-
-[[bounded-context:ExportedTypeMustBeInterfaceOrDTO]]
-[source,cypher,role=constraint,requiresConcepts="bounded-context:BoundedContext,dto:DTO"]
-.A bounded context must only depend on types from another bounded context that are either Java interfaces or DTOs.
-----
-MATCH
-  (bc1:BoundedContext:Artifact)-[:CONTAINS]->(t1:Type),
-  (bc2:BoundedContext:Artifact)-[:CONTAINS]->(t2:Type),
-  (t1)-[:DEPENDS_ON]->(t2)
-WHERE
-  bc1.boundedContext <> bc2.boundedContext
-  and not t2.fqn in [
-    "com.salesmanager.catalog.presentation.CatalogApplicationConfiguration",
-    "com.salesmanager.catalog.init.CatalogInitializer"
-  ]
-  and not (
-    t2:Interface or t2:DTO
-  )
-RETURN
-  bc2.name as Exporter, t2.fqn as ExportedType, bc1.name as Importer, t1.fqn as ImportingType
 ----
 
