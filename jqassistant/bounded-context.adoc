@@ -10,7 +10,7 @@ The application consists of `Bounded Contexts`, each of them consisting of one o
 ----
 UNWIND
   [
-    {id:"Core", artifacts:["sm-core","sm-core-model-api","sm-core-model","sm-core-modules","sm-shop"]},
+    {id:"Core", artifacts:["sm-core","sm-core-model","sm-core-modules","sm-shop"]},
     {id:"Catalog", artifacts:["sm-catalog"]}
   ] as definition
 UNWIND
@@ -36,16 +36,10 @@ The goal is to have a cycle-free dependency graph that allows for:
 .Definition of allowed dependencies between different bounded contexts. They are mapped to Maven artifacts that represent public interfaces of each bounded context.
 ----
 MATCH
-  (core:BoundedContext:Artifact{name:"sm-core"}),
-  (coreModelApi:BoundedContext:Artifact{name:"sm-core-model-api"}),
   (shop:BoundedContext:Artifact{name:"sm-shop"}),
   (catalog:BoundedContext:Artifact{name:"sm-catalog"})
 MERGE
-  (core)-[d1:DEFINES_BC_DEPENDENCY]->(catalog)
-MERGE
   (shop)-[d2:DEFINES_BC_DEPENDENCY]->(catalog)
-MERGE
-  (catalog)-[d3:DEFINES_BC_DEPENDENCY]->(coreModelApi)
 RETURN
   *
 ----
