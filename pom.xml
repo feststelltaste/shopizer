@@ -201,6 +201,13 @@
 						</configuration>
 					</execution>
 				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.jqassistant.contrib.plugin</groupId>
+						<artifactId>jqassistant-asciidoc-report-plugin</artifactId>
+						<version>${jqassistant.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
